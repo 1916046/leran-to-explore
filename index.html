@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this tstudlate file, choose Tools | Tstudlates
+and open the tstudlate in the editor.
+-->
+<html lang="en">
+
+<head>
+    <title>Student Database</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Enter Student Details</h2>
+        <form id="studForm" method="post">
+            <div class="form-group">
+                <span><label for="studId">Student Roll No:</label> <label id="studIdMsg">
+                    </label></span>
+                <input type="text" class="form-control" name="studId" id="studId" placeholder="Enter student Roll No"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="studName">student Name:</label>
+                <input type="text" class="form-control" id="studName" placeholder="Enter student Name" name="studName">
+            </div>
+            <div class="form-group">
+                <label for="studEmail">Email:</label>
+                <input type="email" class="form-control" id="studEmail" placeholder="Enter student Email"
+                    name="studEmail">
+            </div>
+            <input type="button" class="btn btn-primary" id="studSave" value="Save" onclick="savestudent();">
+        </form>
+    </div>
+    <script>
+        $("#studId").focus();
+        function validateAndGetFormData() {
+            var studIdVar = $("#studId").val();
+            if (studIdVar === "") {
+                alert("student ID Required Value");
+                $("#studId").focus();
+                return "";
+            }
+            var studNameVar = $("#studName").val();
+            if (studNameVar === "") {
+                alert("student Name is Required Value");
+                $("#studName").focus();
+                return "";
+            }
+            var studEmailVar = $("#studEmail").val();
+            if (studEmailVar === "") {
+                alert("student Email is Required Value");
+                $("#studEmail").focus();
+                return "";
+            }
+            var jsonStrObj = {
+                studId: studIdVar,
+                studName: studNameVar,
+                studEmail: studEmailVar,
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+        // This method is used to create PUT Json request.
+        function createPUTRequest(connToken, jsonObj, dbName, relName) {
+            var putRequest = "{\n"
+                + "\"token\" : \""
+                + connToken
+                + "\","
+                + "\"dbName\": \""
+                + dbName
+                + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                + "\"rel\" : \""
+                + relName + "\","
+                + "\"jsonStr\": \n"
+                + jsonObj
+                + "\n"
+                + "}";
+            return putRequest;
+        }
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result) {
+                jsonObj = JSON.parse(result);
+            }).fail(function (result) {
+                var dataJsonObj = result.responseText;
+                jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+        function resetForm() {
+            $("#studId").val("")
+            $("#studName").val("");
+            $("#studEmail").val("");
+            $("#studId").focus();
+        }
+        function savestudent() {
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var putReqStr = createPUTRequest("90937748|-31949295371549209|90942088",
+                jsonStr, "STUDENT3", "stud3-REL");
+            alert("Data is being submitted");
+            jQuery.ajaxSetup({ async: false });
+            var resultObj = executeCommand(putReqStr,
+                "http://api.login2explore.com:5577", "/api/iml");
+            alert("Data has been submittted");
+            jQuery.ajaxSetup({ async: true });
+            resetForm();
+        }
+    </script>
+</body>
+
+</html>
